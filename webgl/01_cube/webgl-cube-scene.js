@@ -1,6 +1,58 @@
+const cameraRotationVelocity = 0.01;
+
 var cubeRotation = 0.0;
 
-//
+var rotationX = 0.0;
+var rotationY = 0.0;
+
+var lastMouseX = null;
+var lastMouseY = null;
+
+var deltaX = null;
+var deltaY = null;
+
+// Boolean to track if mouse is currently being dragged
+var isDragging = false;
+
+  
+// Function to handle mouse up event
+function handleMouseUp(event) {
+  isDragging = false;
+}
+
+// Function to handle mouse down event
+function handleMouseDown(event) {
+  isDragging = true;
+
+  lastMouseX = event.clientX;
+  lastMouseY = event.clientY;
+}
+
+// Function to handle mouse move event
+function handleMouseMove(event) {
+  if (!isDragging) {
+    return;
+  }
+
+  if (lastMouseX != null && lastMouseY != null) {
+    deltaX = event.clientX - lastMouseX;
+    deltaY = event.clientY - lastMouseY;
+  }
+
+  lastMouseX = event.clientX;
+  lastMouseY = event.clientY;
+
+  rotationX += cameraRotationVelocity * deltaX;
+  rotationY -= cameraRotationVelocity * deltaY;
+}
+
+
+
+  function degToRad(degrees) {
+    return degrees * Math.PI / 180;
+  }
+
+    //
     // Creates a shader of the given type, uploads the source and
     // compiles it
     //
@@ -193,19 +245,22 @@ var cubeRotation = 0.0;
                      modelViewMatrix,    // matrix to translate
                      [-0.0, 0.0, -6.0]); // amount to translate
 
-      cubeRotation -= deltaTime;
+      mat4.rotate(modelViewMatrix, modelViewMatrix, rotationX, [0, 1, 0]);
+      mat4.rotate(modelViewMatrix, modelViewMatrix, rotationY, [1, 0, 0]);
 
-      mat4.rotate(modelViewMatrix,       // destination matrix
-                  modelViewMatrix,       // matrix to rotate
-                  cubeRotation,        // amount to rotate in radians
-                  [0, 0, 1]              // axis to rotate around
-      );
+      // cubeRotation -= deltaTime;
 
-      mat4.rotate(modelViewMatrix,       // destination matrix
-                  modelViewMatrix,       // matrix to rotate
-                  cubeRotation * 0.7,        // amount to rotate in radians
-                  [0, 1, 0]              // axis to rotate around
-      );
+      // mat4.rotate(modelViewMatrix,       // destination matrix
+      //             modelViewMatrix,       // matrix to rotate
+      //             cubeRotation,        // amount to rotate in radians
+      //             [0, 0, 1]              // axis to rotate around
+      // );
+
+      // mat4.rotate(modelViewMatrix,       // destination matrix
+      //             modelViewMatrix,       // matrix to rotate
+      //             cubeRotation * 0.7,        // amount to rotate in radians
+      //             [0, 1, 0]              // axis to rotate around
+      // );
 
       // Tell WebGL how to pull out the positions from the position
       // buffer into the vertexPosition attribute
@@ -345,6 +400,11 @@ var cubeRotation = 0.0;
 
         requestAnimationFrame(render);
       }
+
+      // Event listeners for mouse down, move, and up events
+      canvas.addEventListener('mousedown', handleMouseDown);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('mouseup', handleMouseUp);
 
       requestAnimationFrame(render);
 
